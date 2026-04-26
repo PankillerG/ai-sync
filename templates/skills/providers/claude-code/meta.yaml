@@ -1,0 +1,14 @@
+# https://code.claude.com/docs/en/skills
+
+# agent: general-purpose
+# allowed-tools: Read, Grep, Glob, WebSearch, WebFetch
+# argument-hint: [arg1] [arg2]
+# context: fork
+# disable-model-invocation: false
+# effort: medium
+# hooks:
+# model: sonnet
+# paths: "**/*.ts"
+# shell: bash
+# user-invocable: true
+# when_to_use:

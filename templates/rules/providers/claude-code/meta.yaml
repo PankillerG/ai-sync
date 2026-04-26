@@ -1,0 +1,6 @@
+# Claude Code rule settings (applied to all .md files of this rule).
+# Per-file overrides: put <filename>.yaml next to this meta.yaml.
+# https://code.claude.com/docs/en/memory
+
+# paths:
+#   - "src/**/*.py"
