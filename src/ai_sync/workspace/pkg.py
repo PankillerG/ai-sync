@@ -44,4 +44,4 @@ class Pkg:
         return RulePaths(root=self.rule_template_dir)
 
 
-pkg = Pkg(root=config.REPO_ROOT_DIR)
+pkg = Pkg(root=config.PACKAGE_DIR)
