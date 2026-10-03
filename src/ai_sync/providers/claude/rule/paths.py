@@ -28,7 +28,7 @@ class RuleDeployUserPaths:
 
     @property
     def rules_dir(self) -> Path:
-        return self.root / ".claude" / "rules"
+        return self.root / ".claude" / "rules" / "ai-sync"
 
     def rule_dir(self, rule_name) -> Path:
         return self.rules_dir / rule_name
@@ -40,7 +40,7 @@ class RuleDeployProjectPaths:
 
     @property
     def rules_dir(self) -> Path:
-        return self.root / ".claude" / "rules"
+        return self.root / ".claude" / "rules" / "ai-sync"
     
     def rule_dir(self, rule_name) -> Path:
         return self.rules_dir / rule_name

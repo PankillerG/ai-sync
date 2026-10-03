@@ -36,6 +36,14 @@ pipx install .
 
 After install, the `ai-sync` command is available on your `PATH`.
 
+Run a first deploy right away. It installs the built-in `ai-sync` skill and
+rule, so your agents create skills and rules through `ai-sync` from now on
+(see [Base preset](#base-preset)):
+
+```bash
+ai-sync deploy
+```
+
 ## Quick start
 
 Create a skill:
@@ -51,62 +59,60 @@ Edit the generated files:
 ~/.config/ai-sync/skills/research/prompt.md
 ```
 
-Generate provider-specific output:
-
-```bash
-ai-sync generate
-```
-
-Refresh the deploy config:
-
-```bash
-ai-sync update deploy-config
-```
-
-Open `~/.config/ai-sync/deploy.yaml`, uncomment the new skill, and choose where
-to deploy it:
-
-```yaml
-skills:
-  research:
-    - user
-```
-
-Deploy:
+Deploy it to your user-level configs of every provider:
 
 ```bash
 ai-sync deploy
+```
+
+To keep skills and rules inside a project instead, pass the project directory:
+
+```bash
+ai-sync init skill research --dir ~/code/my-project
+ai-sync deploy --dir ~/code/my-project
 ```
 
 ## Commands
 
 | Command | Description |
 | --- | --- |
-| `ai-sync init <skill\|rule> <name>` | Create a new skill or rule from a template. |
-| `ai-sync generate` | Generate provider-specific files. |
-| `ai-sync update deploy-config` | Refresh `deploy.yaml` from generated skills and rules. |
-| `ai-sync deploy` | Copy generated files to the selected targets. |
+| `ai-sync init <skill\|rule> <name> [--dir PATH]` | Create a new skill or rule from a template. |
+| `ai-sync deploy [--dir PATH] [-p/--providers P ...]` | Generate provider-specific files and deploy them. |
 
-Use `--dir <path>` to choose a different working directory. The default is
-`~/.config/ai-sync`.
+`--dir` selects the scope, see [Scopes](#scopes). `-p`/`--providers` limits the
+deploy to the listed providers (`claude`, `codex`, `opencode`); by
+default every provider is used.
 
 ## Skills
 
-A skill has shared content plus optional provider-specific metadata:
+A skill has shared content, optional supporting files, and optional
+provider-specific metadata and files:
 
 ```text
 skills/research/
   meta.yaml
   prompt.md
+  scripts/
+    fetch.py
+  references/
+    api.md
   providers/
-    claude-code/
+    claude/
       meta.yaml
     codex/
       agents/openai.yaml
 ```
 
-`meta.yaml` and `prompt.md` are the content you maintain. A provider directory
-enables that provider for the skill.
+`meta.yaml` and `prompt.md` become the provider's `SKILL.md`. A provider
+directory holds optional provider-specific settings; without it the skill is
+still deployed for that provider, just without extra settings.
+
+Every other file in the skill directory, such as `scripts/`, `references/` or
+`assets/`, is copied next to `SKILL.md` for every provider. Files in a provider
+directory, except its `meta.yaml`, are copied only for that provider. Reference
+them from `prompt.md` with paths relative to the skill directory, such as
+`scripts/fetch.py`. A file that would end up at the same path twice, including
+`SKILL.md`, stops the deploy with an error.
 
 Provider metadata follows the provider's own format:
 
@@ -132,7 +138,7 @@ paths:
 ```text
 rules/python-standards/
   providers/
-    claude-code/
+    claude/
       meta.yaml
       imports.yaml
 ```
@@ -140,50 +146,65 @@ rules/python-standards/
 Claude Code rule metadata follows the provider's format:
 [Claude Code memory](https://code.claude.com/docs/en/memory).
 
-## Deploy config
+## Base preset
 
-`deploy.yaml` decides what gets deployed and where:
+`ai-sync` ships with a base preset that every user-level deploy adds to your
+own skills and rules:
 
-```yaml
-projects:
-  work: /home/me/code/work-monorepo
-  side: /home/me/code/side-project
+- the `ai-sync` skill teaches agents where ai-sync sources live, how to pick
+  the user or project scope, and how to lay out skills and rules;
+- the `ai-sync` rule tells agents to create and edit skills and rules through
+  `ai-sync` and run `ai-sync deploy`, instead of writing into provider
+  directories.
 
-skills:
-  research:
-    - user
-    - project:work
+When you ask an agent to add a skill or a rule, it writes the source under
+`~/.config/ai-sync/` or `<project>/.ai-sync/` and deploys it to every provider.
 
-rules:
-  security:
-    - user
-  python-standards:
-    - user
-    - project:work
-```
+The preset is not deployed to projects. Its skill and rule names are reserved:
+`ai-sync init` and `ai-sync deploy` fail if your own skill or rule is named
+`ai-sync`, in any scope.
 
-- `projects` maps aliases to project paths.
-- `user` deploys to your global provider config.
-- `project:<alias>` deploys to a project from `projects`.
+## Scopes
 
-Run `ai-sync update deploy-config` after adding or removing skills and rules.
-New entries are added as commented templates, so you can opt in before deploy.
+`--dir` points to the scope root. The scope decides where skills and rules are
+read from and where they are deployed:
 
-For Codex rules, the order of entries under `rules` is the order used in the
-generated `AGENTS.md`.
+| `--dir` | Reads from | Deploys to |
+| --- | --- | --- |
+| your home directory (default) | `~/.config/ai-sync/` | user-level provider configs |
+| any other directory | `<dir>/.ai-sync/` | that project |
+
+After `ai-sync deploy`, providers have exactly the skills and rules from
+`~/.config/ai-sync/` plus the [base preset](#base-preset) (or
+`<dir>/.ai-sync/`). Deleting a skill or rule there and
+deploying again removes it from every provider. Skills and rules managed by
+other tools or written by hand are left untouched.
+
+Rules are deployed in alphabetical order of their names, which is also their
+order in the generated Codex `AGENTS.md`.
 
 ## Generated files
 
-You edit the source files under `skills/`, `rules/`, and `deploy.yaml`.
-`ai-sync generate` writes provider-specific files under `output/`; that
-directory is generated and can be recreated at any time.
+You edit the source files under `skills/` and `rules/`. `ai-sync deploy`
+first writes provider-specific files under `output/` next to them; that
+directory is regenerated on every deploy. In a project, add `.ai-sync/output/`
+to `.gitignore`.
 
-`ai-sync deploy` treats deployed files as managed output:
+For every provider it deploys to, `ai-sync deploy` first deletes what it
+manages there and then writes the current skills and rules:
 
-- Claude Code and OpenCode rule directories for selected rules are replaced.
-- Codex `AGENTS.md` is rewritten from selected rules.
-- OpenCode `opencode.json` is preserved, with missing `instructions` entries
-  appended.
+- skills whose `SKILL.md` frontmatter contains
+  `metadata: {managed-by: ai-sync}`; `ai-sync` adds this field to every skill
+  it deploys, so other skills are left untouched;
+- the `ai-sync/` directory inside Claude Code `rules/` and the OpenCode
+  `ai-sync-rules/` directory;
+- the Codex `AGENTS.md`, even if it was not created by `ai-sync`; it is not
+  recreated when there are no rules.
+
+A skill directory with the same name as a deployed skill is replaced. OpenCode
+`opencode.json` is preserved: only its `instructions` entries pointing into
+`ai-sync-rules/` are replaced. The skill names `synced`, `anthropic-skills` and
+`.trash` are reserved by Claude Code.
 
 ## Provider support
 
@@ -199,10 +220,10 @@ want to inspect what `ai-sync deploy` changed.
 
 | Entity | Provider | User target | Project target | Provider docs |
 | --- | --- | --- | --- | --- |
-| skill | Claude Code | `~/.claude/skills/<name>/SKILL.md` | `<project>/.claude/skills/<name>/SKILL.md` | [skills](https://code.claude.com/docs/en/skills) |
+| skill | Claude Code | `~/.claude/skills/<name>/` | `<project>/.claude/skills/<name>/` | [skills](https://code.claude.com/docs/en/skills) |
 | skill | Codex | `~/.agents/skills/<name>/` | `<project>/.agents/skills/<name>/` | [skills](https://developers.openai.com/codex/skills) |
-| skill | OpenCode | `~/.config/opencode/skills/<name>/SKILL.md` | `<project>/.opencode/skills/<name>/SKILL.md` | [skills](https://opencode.ai/docs/skills/) |
-| rule | Claude Code | `~/.claude/rules/<name>/*.md` | `<project>/.claude/rules/<name>/*.md` | [memory](https://code.claude.com/docs/en/memory) |
+| skill | OpenCode | `~/.config/opencode/skills/<name>/` | `<project>/.opencode/skills/<name>/` | [skills](https://opencode.ai/docs/skills/) |
+| rule | Claude Code | `~/.claude/rules/ai-sync/<name>/*.md` | `<project>/.claude/rules/ai-sync/<name>/*.md` | [memory](https://code.claude.com/docs/en/memory) |
 | rule | Codex | `~/.codex/AGENTS.md` | `<project>/AGENTS.md` | [rules](https://developers.openai.com/codex/rules) |
 | rule | OpenCode | `~/.config/opencode/ai-sync-rules/<name>/*.md` | `<project>/ai-sync-rules/<name>/*.md` | [rules](https://opencode.ai/docs/rules/) |
 

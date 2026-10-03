@@ -1,6 +1,6 @@
 [project]
 name = "ai-sync"
-version = "0.1.0"
+version = "0.2.0"
 description = "Sync AI skills, agents, rules, and configs across providers"
 requires-python = ">=3.12"
 dependencies = [
@@ -19,4 +19,4 @@ build-backend = "setuptools.build_meta"
 where = ["src"]
 
 [tool.setuptools.package-data]
-ai_sync = ["templates/**/*"]
+ai_sync = ["templates/**/*", "presets/**/*"]

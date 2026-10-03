@@ -4,14 +4,8 @@ from pathlib import Path
 
 from ai_sync.entities import EntityType
 from ai_sync.workspace.entity import ENTITY_TYPE_DIRS
-from ai_sync.workspace.rule import (
-    RuleOutputPaths,
-    RulePaths,
-)
-from ai_sync.workspace.skill import (
-    SkillOutputPaths,
-    SkillPaths,
-)
+from ai_sync.workspace.rule import RuleOutputPaths
+from ai_sync.workspace.skill import SkillOutputPaths
 
 
 @dataclass
@@ -47,15 +41,9 @@ class Workspace:
     def skills_dir(self) -> Path:
         return self.entities_dir(EntityType.SKILL)
 
-    def skill_paths(self, name: str) -> SkillPaths:
-        return SkillPaths(root=self.skills_dir / name)
-
     @property
     def rules_dir(self) -> Path:
         return self.entities_dir(EntityType.RULE)
-
-    def rule_paths(self, name: str) -> RulePaths:
-        return RulePaths(root=self.rules_dir / name)
 
     @cached_property
     def output_paths(self) -> OutputPaths:

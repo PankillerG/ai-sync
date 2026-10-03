@@ -2,6 +2,9 @@ from enum import StrEnum
 
 
 class ProviderName(StrEnum):
-    CLAUDE_CODE = "claude-code"
+    CLAUDE = "claude"
     CODEX = "codex"
     OPENCODE = "opencode"
+
+
+PROVIDER_NAME_VALUES = [provider.value for provider in ProviderName]

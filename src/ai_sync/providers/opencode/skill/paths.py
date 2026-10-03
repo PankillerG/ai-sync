@@ -37,8 +37,8 @@ class SkillDeployUserPaths:
     def skills_dir(self) -> Path:
         return self.root / ".config" / "opencode" / "skills"
 
-    def skill_paths(self, skill_name) -> SkillDeployPaths:
-        return SkillDeployPaths(self.skills_dir / skill_name)
+    def skill_paths(self, skill_name: str) -> SkillDeployPaths:
+        return SkillDeployPaths(root=self.skills_dir / skill_name)
 
 
 @dataclass
@@ -49,5 +49,5 @@ class SkillDeployProjectPaths:
     def skills_dir(self) -> Path:
         return self.root / ".opencode" / "skills"
 
-    def skill_paths(self, skill_name) -> SkillDeployPaths:
-        return SkillDeployPaths(self.skills_dir / skill_name)
+    def skill_paths(self, skill_name: str) -> SkillDeployPaths:
+        return SkillDeployPaths(root=self.skills_dir / skill_name)

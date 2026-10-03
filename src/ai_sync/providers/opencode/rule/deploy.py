@@ -2,11 +2,11 @@ import json
 import shutil
 from pathlib import Path
 
-from ai_sync.deploy_config.models import ResolvedTarget
 from ai_sync.providers.opencode.rule.paths import (
     RuleDeployProjectPaths,
     RuleDeployUserPaths,
 )
+from ai_sync.scope import Scope
 
 
 def _update_config_instructions(config_json_file: Path, globs: list[str]) -> None:
@@ -23,20 +23,19 @@ def _update_config_instructions(config_json_file: Path, globs: list[str]) -> Non
 
 
 def deploy(
-    target: ResolvedTarget,
+    work_dir: Path,
+    scope: Scope,
     rules: list[tuple[str, Path]],
 ) -> None:
-    if target.kind == "user":
-        rule_deploy_paths = RuleDeployUserPaths(root=target.path)
-    elif target.kind == "project":
-        rule_deploy_paths = RuleDeployProjectPaths(root=target.path)
+    if scope == Scope.USER:
+        rule_deploy_paths = RuleDeployUserPaths(root=work_dir)
+    elif scope == Scope.PROJECT:
+        rule_deploy_paths = RuleDeployProjectPaths(root=work_dir)
 
     instruction_globs = []
 
     for rule_name, rule_provider_output_dir in rules:
         rule_deploy_dir = rule_deploy_paths.rule_dir(rule_name)
-        if rule_deploy_dir.exists():
-            shutil.rmtree(rule_deploy_dir)
         shutil.copytree(rule_provider_output_dir, rule_deploy_dir)
 
         instruction_globs.append(f"{rule_deploy_dir}/*.md")

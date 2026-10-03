@@ -3,25 +3,12 @@ from pathlib import Path
 
 
 @dataclass
-class SkillPaths:
-    root: Path
-
-    @property
-    def agents_openai_yaml_file(self) -> Path:
-        return self.root / "agents" / "openai.yaml"
-
-
-@dataclass
 class SkillOutputPaths:
     root: Path
 
     @property
     def skill_md_file(self) -> Path:
         return self.root / "SKILL.md"
-
-    @property
-    def agents_openai_yaml_file(self) -> Path:
-        return self.root / "agents" / "openai.yaml"
 
 
 @dataclass
@@ -32,10 +19,6 @@ class SkillDeployPaths:
     def skill_md_file(self) -> Path:
         return self.root / "SKILL.md"
 
-    @property
-    def agents_openai_yaml_file(self) -> Path:
-        return self.root / "agents" / "openai.yaml"
-
 
 @dataclass
 class SkillDeployUserPaths:
@@ -45,8 +28,8 @@ class SkillDeployUserPaths:
     def skills_dir(self) -> Path:
         return self.root / ".agents" / "skills"
 
-    def skill_paths(self, skill_name) -> SkillDeployPaths:
-        return SkillDeployPaths(self.skills_dir / skill_name)
+    def skill_paths(self, skill_name: str) -> SkillDeployPaths:
+        return SkillDeployPaths(root=self.skills_dir / skill_name)
 
 
 @dataclass
@@ -57,5 +40,5 @@ class SkillDeployProjectPaths:
     def skills_dir(self) -> Path:
         return self.root / ".agents" / "skills"
 
-    def skill_paths(self, skill_name) -> SkillDeployPaths:
-        return SkillDeployPaths(self.skills_dir / skill_name)
+    def skill_paths(self, skill_name: str) -> SkillDeployPaths:
+        return SkillDeployPaths(root=self.skills_dir / skill_name)

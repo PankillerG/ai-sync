@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from ai_sync.lib import yaml_utils
+from ai_sync.providers import utils
 from ai_sync.providers.opencode.skill.paths import (
     SkillOutputPaths as SkillProviderOutputPaths,
     SkillPaths as SkillProviderPaths,
@@ -27,7 +28,7 @@ def generate(
         skill_paths.meta_yaml_file,
         skill_provider_paths.meta_yaml_file,
     ])
-    frontmatter = yaml_utils.get_frontmatter(frontmatter_fields)
+    frontmatter = yaml_utils.get_frontmatter(utils.add_managed_by_ai_sync_metadata(frontmatter_fields))
 
     prompt = skill_paths.prompt_md_file.read_text().strip()
 
@@ -35,3 +36,10 @@ def generate(
 
     skill_provider_output_paths.root.mkdir(parents=True, exist_ok=True)
     skill_provider_output_paths.skill_md_file.write_text(content)
+
+    utils.copy_files(skill_paths.root, skill_provider_output_paths.root, exclude=skill_paths.reserved_paths)
+    utils.copy_files(
+        skill_provider_paths.root,
+        skill_provider_output_paths.root,
+        exclude=[skill_provider_paths.meta_yaml_file],
+    )

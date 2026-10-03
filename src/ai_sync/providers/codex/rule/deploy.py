@@ -1,11 +1,11 @@
 from pathlib import Path
 
-from ai_sync.deploy_config.models import ResolvedTarget
 from ai_sync.lib import jinja_utils
 from ai_sync.providers.codex.rule.paths import (
     RuleDeployProjectPaths,
     RuleDeployUserPaths,
 )
+from ai_sync.scope import Scope
 
 
 RULE_BLOCK_TEMPLATE = """\
@@ -40,13 +40,14 @@ def _render_rule_text(rule_name: str, rule_provider_output_dir: Path) -> str:
 
 
 def deploy(
-    target: ResolvedTarget,
+    work_dir: Path,
+    scope: Scope,
     rules: list[tuple[str, Path]],
 ) -> None:
-    if target.kind == "user":
-        rule_deploy_paths = RuleDeployUserPaths(root=target.path)
-    elif target.kind == "project":
-        rule_deploy_paths = RuleDeployProjectPaths(root=target.path)
+    if scope == Scope.USER:
+        rule_deploy_paths = RuleDeployUserPaths(root=work_dir)
+    elif scope == Scope.PROJECT:
+        rule_deploy_paths = RuleDeployProjectPaths(root=work_dir)
 
     rules_texts = [
         _render_rule_text(rule_name, rule_provider_output_dir)

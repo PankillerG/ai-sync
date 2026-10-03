@@ -43,5 +43,19 @@ class Pkg:
     def rule_template_paths(self) -> RulePaths:
         return RulePaths(root=self.rule_template_dir)
 
+    @property
+    def presets_dir(self) -> Path:
+        return self.root / "presets"
+
+    @property
+    def base_preset_dir(self) -> Path:
+        return self.presets_dir / "base"
+
+    def base_preset_entities_dir(self, entity_type: EntityType) -> Path:
+        return self.base_preset_dir / ENTITY_TYPE_DIRS[entity_type]
+
+    def base_preset_entity_dir(self, entity_type: EntityType, name: str) -> Path:
+        return self.base_preset_entities_dir(entity_type) / name
+
 
 pkg = Pkg(root=config.PACKAGE_DIR)

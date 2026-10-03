@@ -9,6 +9,9 @@ from ai_sync.workspace import (
 
 
 def run(ws: Workspace, entity_type: EntityType, entity_name: str) -> Path:
+    if pkg.base_preset_entity_dir(entity_type, entity_name).exists():
+        raise Exception(f"{entity_type} name '{entity_name}' is reserved by the ai-sync base preset")
+
     template_dir = pkg.entity_template_dir(entity_type)
     if not template_dir.exists():
         raise Exception(f"Template not found at {template_dir}")

@@ -1,0 +1,7 @@
+name: ai-sync
+description: >-
+  Create, edit, or delete agent skills and rules through ai-sync, which deploys
+  them to Claude Code, Codex, and OpenCode at once. Use whenever the user asks
+  to add, change, or remove a skill, a rule, or persistent agent instructions,
+  at user level or in a project, instead of writing into provider directories
+  such as ~/.claude/skills, ~/.agents/skills, or AGENTS.md.

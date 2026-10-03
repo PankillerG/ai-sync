@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from ai_sync.lib import yaml_utils
-from ai_sync.providers.claude_code.rule.paths import (
+from ai_sync.providers.claude.rule.paths import (
     RuleOutputPaths as RuleProviderOutputPaths,
     RuleProviderPaths,
 )

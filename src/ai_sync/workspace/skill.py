@@ -23,6 +23,10 @@ class SkillPaths:
     def provider_dir(self, provider_name: ProviderName) -> Path:
         return self.providers_dir / provider_name
 
+    @property
+    def reserved_paths(self) -> list[Path]:
+        return [self.meta_yaml_file, self.prompt_md_file, self.providers_dir]
+
 
 @dataclass
 class SkillOutputPaths:

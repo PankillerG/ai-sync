@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 
 from ai_sync.lib import path_utils
-from ai_sync.providers.opencode.skill.paths import (
+from ai_sync.providers.claude.skill.paths import (
     SkillDeployProjectPaths,
     SkillDeployUserPaths,
 )

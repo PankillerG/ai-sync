@@ -35,3 +35,10 @@ def get_frontmatter(fields: dict) -> str:
     if body == "{}":
         body = ""
     return f"---\n{body}\n---"
+
+
+# The markdown body after the closing "---" is a second YAML document, which is never parsed.
+def load_frontmatter(path: Path) -> dict:
+    with open(path) as f:
+        fields = next(yaml.safe_load_all(f), None)
+    return fields if isinstance(fields, dict) else {}
